@@ -4,20 +4,24 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { extractTextFromPDF, RoastResult } from '@/lib/pdfExtractor';
 import { canRoast, recordRoast, getRemainingRoasts } from '@/lib/rateLimit';
+import EmailGate from '@/components/EmailGate';
 
 interface PDFUploaderProps {
   onRoastComplete: (result: RoastResult) => void;
   onUpgradeNeeded: () => void;
   isPro: boolean;
+  userId?: string;
 }
 
-export default function PDFUploader({ onRoastComplete, onUpgradeNeeded, isPro }: PDFUploaderProps) {
+export default function PDFUploader({ onRoastComplete, onUpgradeNeeded, isPro, userId }: PDFUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [remaining, setRemaining] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [extractedText, setExtractedText] = useState<string | null>(null);
 
   // Fix hydration issue by fetching remaining roasts after mount
   useEffect(() => {
@@ -48,10 +52,25 @@ export default function PDFUploader({ onRoastComplete, onUpgradeNeeded, isPro }:
         return;
       }
 
+      setExtractedText(text);
+      setIsLoading(false); // Stop loading temporarily to show Email gate
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setIsLoading(false);
+    }
+  }, [isPro, onUpgradeNeeded]);
+
+  const handleEmailSubmit = async (email: string | undefined) => {
+    if (!extractedText) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
       const response = await fetch('/api/roast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resumeText: text }),
+        body: JSON.stringify({ resumeText: extractedText, userId, email }),
       });
 
       if (!response.ok) {
@@ -61,14 +80,25 @@ export default function PDFUploader({ onRoastComplete, onUpgradeNeeded, isPro }:
 
       const result = await response.json();
       recordRoast();
-      setRemaining(getRemainingRoasts(isPro)); // Update local state after roast
+      setRemaining(getRemainingRoasts(isPro));
+
+      // If we collected an email and got a roastId, trigger the email asynchronously
+      if (email && result.id) {
+        fetch('/api/send-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, roastId: result.id })
+        }).catch(console.error); // Fire and forget
+      }
+
       onRoastComplete(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setIsLoading(false);
+      setExtractedText(null); // Reset
     }
-  }, [isPro, onRoastComplete, onUpgradeNeeded]);
+  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -92,6 +122,33 @@ export default function PDFUploader({ onRoastComplete, onUpgradeNeeded, isPro }:
     const file = e.target.files?.[0];
     if (file) processFile(file);
   }, [processFile]);
+
+  // If we have extracted text but no roast yet, display the Email Gate
+  if (extractedText) {
+    return (
+      <div className="w-full max-w-2xl mx-auto">
+        <EmailGate onSubmit={handleEmailSubmit} isLoading={isLoading} />
+
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mt-6 p-6 bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-[2rem] glass-card mx-auto max-w-md"
+            >
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-[#FF3B30]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p className="text-[#FF3B30] font-mono text-xs uppercase font-bold tracking-tight">{error}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto">

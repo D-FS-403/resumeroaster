@@ -7,6 +7,7 @@ import ScoreCard from '@/components/ScoreCard';
 import RoastCard from '@/components/RoastCard';
 import UpgradeModal from '@/components/UpgradeModal';
 import AuthForm from '@/components/AuthForm';
+import ShareRoastButton from '@/components/ShareRoastButton';
 import { RoastResult } from '@/lib/pdfExtractor';
 import { supabase } from '@/lib/supabase';
 
@@ -85,15 +86,6 @@ export default function Home() {
 
   const handleRoastComplete = (result: RoastResult) => {
     setRoastResult(result);
-
-    supabase.from('roasts').insert({
-      user_id: user?.id || null,
-      overall_score: result.overallScore,
-      grade: result.grade,
-      roast_headline: result.roastHeadline,
-      badges: result.badges,
-      categories: result.categories,
-    });
   };
 
   return (
@@ -120,7 +112,12 @@ export default function Home() {
           </motion.div>
 
           <div className="hidden md:flex items-center gap-8 font-mono text-sm text-white/60">
+            {user && (
+              <a href="/dashboard" className="hover:text-white transition-colors text-white font-bold">Dashboard</a>
+            )}
             <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
+            <a href="/match" className="hover:text-white transition-colors text-[#34C759] font-bold">Job Match</a>
+            <a href="/rewrite" className="hover:text-white transition-colors text-[#34C759] font-bold">Bullet Fixer</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
             <a href="#roast" className="hover:text-white transition-colors text-[#FF3B30] font-bold">Roast Me</a>
           </div>
@@ -203,6 +200,7 @@ export default function Home() {
                       onRoastComplete={handleRoastComplete}
                       onUpgradeNeeded={() => setShowUpgradeModal(true)}
                       isPro={isPro}
+                      userId={user?.id}
                     />
                   </div>
                 </div>
@@ -220,6 +218,16 @@ export default function Home() {
                     <div className="absolute inset-0 bg-[#FF3B30]/20 blur-[100px] pointer-events-none" />
                     <RoastCard result={roastResult as RoastResult} />
                   </div>
+
+                  {roastResult.id && (
+                    <div className="flex justify-center">
+                      <ShareRoastButton
+                        roastId={roastResult.id}
+                        score={roastResult.overallScore}
+                        headline={roastResult.roastHeadline}
+                      />
+                    </div>
+                  )}
 
                   <button
                     onClick={() => {
@@ -305,7 +313,7 @@ export default function Home() {
                 <h4 className="font-playfair text-3xl font-bold mb-2">The Freebie</h4>
                 <p className="font-mono text-sm text-white/40 mb-8 italic">For the curious</p>
                 <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-bold">$0</span>
+                  <span className="text-4xl font-bold">₹0</span>
                   <span className="text-white/40 font-mono text-xs">/FOREVER</span>
                 </div>
                 <ul className="space-y-5 font-inter text-sm text-white/60 mb-10">
@@ -333,7 +341,7 @@ export default function Home() {
                 <h4 className="font-playfair text-3xl font-bold mb-2">The Roast Professional</h4>
                 <p className="font-mono text-sm text-[#FF3B30]/60 mb-8 italic">For the ambitious</p>
                 <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-bold">$9</span>
+                  <span className="text-4xl font-bold">₹9</span>
                   <span className="text-white/40 font-mono text-xs uppercase">/Month</span>
                 </div>
                 <ul className="space-y-5 font-inter text-sm text-white/80 mb-10">
@@ -410,7 +418,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-16 border-t border-white/5 font-mono text-[10px] text-white/20 uppercase tracking-[0.2em]">
-            <p>© 2024 RESUMEROAST. ALL RIGHTS RESERVED.</p>
+            <p>© 2024 RESUMEROASTER. ALL RIGHTS RESERVED.</p>
             <p>Made with 🔥 for the job hunt.</p>
           </div>
         </div>

@@ -42,6 +42,8 @@ export default function RoastCard({ result }: RoastCardProps) {
         logging: false,
         useCORS: true,
         allowTaint: true,
+        windowWidth: 1200,
+        windowHeight: 630,
         // Remove filters that html2canvas cannot parse (like oklab)
         onclone: (clonedDoc) => {
           const exportElement = clonedDoc.querySelector('[data-export-container]');
@@ -64,13 +66,13 @@ export default function RoastCard({ result }: RoastCardProps) {
   };
 
   const handleShare = () => {
-    const text = `My resume got roasted 🔥 I scored ${result.overallScore}/100 — "${result.roastHeadline}" resumeroast.com #ResumeRoast`;
+    const text = `My resume got roasted 🔥 I scored ${result.overallScore}/100 — "${result.roastHeadline}" resumeroaster.xyz #ResumeRoast`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
 
   const handleCopyLink = async () => {
-    await navigator.clipboard.writeText('https://resumeroast.com');
+    await navigator.clipboard.writeText('https://resumeroaster.xyz');
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   };
@@ -153,7 +155,7 @@ export default function RoastCard({ result }: RoastCardProps) {
                   <div className="w-6 h-6 bg-[#FF3B30] rounded flex items-center justify-center font-bold text-white text-[10px]">R</div>
                   <p className="font-playfair text-lg text-white font-bold tracking-tight opacity-60">ResuméRoast</p>
                 </div>
-                <p className="font-mono text-[8px] text-white/20 uppercase tracking-[0.4em] font-bold">www.resumeroast.com</p>
+                <p className="font-mono text-[8px] text-white/20 uppercase tracking-[0.4em] font-bold">www.resumeroaster.xyz</p>
               </div>
             </div>
           </div>
@@ -221,7 +223,7 @@ export default function RoastCard({ result }: RoastCardProps) {
                 <div className="w-10 h-10 bg-[#FF3B30] rounded-lg flex items-center justify-center font-bold text-white text-base">R</div>
                 <p className="font-playfair text-3xl text-white font-bold tracking-tight">ResuméRoast</p>
               </div>
-              <p className="font-mono text-xs uppercase tracking-[0.4em] font-bold" style={{ color: 'rgba(255,255,255,0.2)' }}>www.resumeroast.com</p>
+              <p className="font-mono text-xs uppercase tracking-[0.4em] font-bold" style={{ color: 'rgba(255,255,255,0.2)' }}>www.resumeroaster.xyz</p>
             </div>
           </div>
         </div>

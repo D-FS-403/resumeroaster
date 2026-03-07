@@ -16,7 +16,7 @@ export default function UPIPayment({ onPaymentComplete, onClose }: UPIPaymentPro
   const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const upiLink = `upi://pay?pa=${UPI_ID}&pn=Resumeroast&am=${AMOUNT}&cu=INR`;
+  const upiLink = `upi://pay?pa=${UPI_ID}&pn=Resumeroaster&am=${AMOUNT}&cu=INR`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
 
   const handleCopyUPI = () => {
@@ -26,7 +26,7 @@ export default function UPIPayment({ onPaymentComplete, onClose }: UPIPaymentPro
   };
 
   const handleWhatsApp = () => {
-    const message = `Hi! I've made a payment of ₹${AMOUNT} to upgrade to ResuméRoast Pro. Please verify and activate my account. UPI Ref: [Your ref number]`;
+    const message = `Hi! I've made a payment of ₹${AMOUNT} to upgrade to ResuméRoaster Pro. Please verify and activate my account. UPI Ref: [Your ref number]`;
     const url = `https://wa.me/91${PHONE}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   };

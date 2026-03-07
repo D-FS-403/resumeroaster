@@ -83,10 +83,15 @@ async function parseWithRetry(prompt: string, retries = 3): Promise<RoastResult>
   throw new Error('Failed to parse after retries');
 }
 
+import { supabase } from '@/lib/supabase';
+
+// Helper function to extract user from session (you check auth here if needed, or send user_id from client)
+// For MVP, if it's sent from client, we can grab it, else it will be null
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { resumeText } = body;
+    const { resumeText, userId, email } = body;
 
     if (!resumeText || typeof resumeText !== 'string') {
       return NextResponse.json(
@@ -104,9 +109,46 @@ export async function POST(request: NextRequest) {
 
     const prompt = `${SYSTEM_PROMPT}\n\nResume text to analyze:\n${resumeText}`;
 
-    const result = await parseWithRetry(prompt);
+    const parsedResult = await parseWithRetry(prompt);
 
-    return NextResponse.json(result);
+    // Save to Supabase (roasts table)
+    const { data: roastData, error: dbError } = await supabase
+      .from('roasts')
+      .insert([
+        {
+          user_id: userId || null,
+          overall_score: parsedResult.overallScore,
+          grade: parsedResult.grade,
+          roast_headline: parsedResult.roastHeadline,
+          badges: parsedResult.badges,
+          categories: parsedResult.categories,
+          is_anonymous: !userId,
+        }
+      ])
+      .select('id')
+      .single();
+
+    if (dbError) {
+      console.error('Failed to save to Supabase:', dbError);
+      // Even if saving to DB fails, we can still return the roast to not break the user experience
+      return NextResponse.json(parsedResult);
+    }
+
+    // Save to leads if email is provided
+    if (email) {
+      await supabase.from('leads').insert([
+        {
+          email: email.trim(),
+          roast_id: roastData.id
+        }
+      ]);
+      // we purposely do not throw/fail the main route if the lead insert fails (e.g duplicate email)
+    }
+
+    // Attach the DB id to the result
+    const resultWithId = { ...parsedResult, id: roastData.id };
+
+    return NextResponse.json(resultWithId);
   } catch (error) {
     console.error('Roast API error:', error);
 
