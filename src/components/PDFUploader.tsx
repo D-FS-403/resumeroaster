@@ -158,11 +158,11 @@ export default function PDFUploader({ onRoastComplete, onUpgradeNeeded, isPro, u
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
         className={`
-          relative rounded-[2rem] p-16 text-center cursor-pointer
+          relative rounded-[2rem] p-12 md:p-16 text-center cursor-pointer
           transition-all duration-500 ease-out border-2
           ${isDragging
-            ? 'border-[#FF3B30] bg-[#FF3B30]/5 scale-[1.01] shadow-[0_0_40px_rgba(255,59,48,0.1)]'
-            : 'border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]'
+            ? 'border-[#FF3B30] bg-[#FF3B30]/5 scale-[1.01] shadow-[0_0_40px_rgba(255,59,48,0.2)]'
+            : 'border-dashed border-[#FF3B30]/40 bg-white/[0.02] hover:border-[#FF3B30] hover:bg-white/[0.04] hover:shadow-[0_0_20px_rgba(255,59,48,0.15)]'
           }
           ${isLoading ? 'pointer-events-none' : ''}
           glass-card
@@ -229,15 +229,27 @@ export default function PDFUploader({ onRoastComplete, onUpgradeNeeded, isPro, u
 
               <div>
                 <p className="text-[#F5F0E8] font-playfair text-3xl font-bold mb-2">
-                  Ready to be roasted?
-                </p>
-                <p className="text-[#F5F0E8]/40 font-mono text-xs uppercase tracking-widest">
-                  Drop PDF here or click to browse
+                  Drop your resume PDF here — or click to upload
                 </p>
               </div>
 
+              <div className="flex items-center justify-center gap-6 font-mono text-xs text-white/40 mt-4">
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  Private & Secure
+                </span>
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                  Results in 30s
+                </span>
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  No Signup Needed
+                </span>
+              </div>
+
               {!isPro && remaining !== null && (
-                <div className="px-4 py-2 bg-[#FF9500]/10 rounded-full border border-[#FF9500]/20">
+                <div className="px-4 py-2 bg-[#FF9500]/10 rounded-full border border-[#FF9500]/20 mt-6">
                   <p className="text-[#FF9500] font-mono text-[10px] uppercase font-bold tracking-tighter">
                     🔥 {remaining} free roast{remaining !== 1 ? 's' : ''} left
                   </p>

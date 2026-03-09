@@ -12,7 +12,7 @@ export interface CategoryScore {
     score: number;
     grade: string;
     roastLine: string;
-    tip: string;
+    tip?: string;
 }
 
 export interface JobMatchResult {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import PDFUploader from '@/components/PDFUploader';
 import ScoreCard from '@/components/ScoreCard';
 import RoastCard from '@/components/RoastCard';
@@ -12,27 +13,30 @@ import { RoastResult } from '@/lib/pdfExtractor';
 import { supabase } from '@/lib/supabase';
 
 const DEMO_RESULT: RoastResult = {
-  overallScore: 47,
+  overallScore: 34,
   grade: 'D',
   roastHeadline: 'This Resume Is So Vague It Could Be About Anyone',
   badges: ['📊 Data Allergic', '🤖 ATS Nightmare', '💤 Sleep Inducing'],
   categories: [
-    { name: 'Impact', score: 35, grade: 'F', roastLine: 'Your achievements are ghosts — vague and unseen', tip: 'Add numbers: "Led team" → "Led 5-person team, increasing revenue 40%"' },
-    { name: 'Clarity', score: 42, grade: 'F', roastLine: 'Passive voice detector: 100% hit rate', tip: 'Use active verbs: "Was responsible for" → "Managed"' },
-    { name: 'ATS Ready', score: 55, grade: 'F', roastLine: 'ATS looked at this and took a nap', tip: 'Add keywords from job descriptions naturally throughout' },
-    { name: 'Relevance', score: 58, grade: 'F', roastLine: 'Skills from 2015 called — they want their XML back', tip: 'Remove outdated tech, add AI/ML skills' },
-    { name: 'Originality', score: 45, grade: 'F', roastLine: 'Cliché generator: results-driven, hard-working, team-player', tip: 'Replace buzzwords with specific accomplishments' },
+    { name: 'Impact', score: 22, grade: 'F', roastLine: 'Responsibilities listed, achievements buried in the void' },
+    { name: 'Clarity', score: 41, grade: 'D', roastLine: 'Passive voice everywhere. Did you do things or did things happen to you?' },
+    { name: 'ATS Readiness', score: 30, grade: 'F', roastLine: 'A bot would reject this before a human ever sees it' },
+    { name: 'Relevance', score: 38, grade: 'D', roastLine: 'Skills section reads like a 2019 bootcamp syllabus' },
+    { name: 'Originality', score: 29, grade: 'F', roastLine: "'Results-driven professional' — congratulations, so is everyone else" },
   ],
 };
 
 export default function Home() {
+  const pathname = usePathname();
   const [roastResult, setRoastResult] = useState<RoastResult | null>(null);
   const [isPro, setIsPro] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [roastCount, setRoastCount] = useState(12847);
+  const [roastCount, setRoastCount] = useState(0);
   const [isLoadingCount, setIsLoadingCount] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const demoRef = useRef(null);
   const isDemoInView = useInView(demoRef, { once: true, margin: '-100px' });
@@ -40,15 +44,11 @@ export default function Home() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data } = await supabase
-          .from('stats')
-          .select('roast_count')
-          .eq('id', '1')
-          .single();
-
-        if (data) setRoastCount(data.roast_count);
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        setRoastCount(data.totalRoasts);
       } catch {
-        // Use fallback
+        setRoastCount(10483);
       } finally {
         setIsLoadingCount(false);
       }
@@ -111,34 +111,48 @@ export default function Home() {
             </h1>
           </motion.div>
 
-          <div className="hidden md:flex items-center gap-8 font-mono text-sm text-white/60">
+          <nav className="hidden md:flex items-center gap-8 font-mono text-sm">
             {user && (
-              <a href="/dashboard" className="hover:text-white transition-colors text-white font-bold">Dashboard</a>
+              <a href="/dashboard" className={`hover:text-white transition-colors ${pathname === '/dashboard' ? 'text-[#FF3B30] underline underline-offset-4' : 'text-white/60'}`}>Dashboard</a>
             )}
-            <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
-            <a href="/match" className="hover:text-white transition-colors text-[#34C759] font-bold">Job Match</a>
-            <a href="/rewrite" className="hover:text-white transition-colors text-[#34C759] font-bold">Bullet Fixer</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+            <a href="#how-it-works" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-[#FF3B30] underline underline-offset-4' : 'text-white/60'}`}>How it works</a>
+            <a href="/match" className={`hover:text-white transition-colors text-[#34C759] font-bold`}>Job Match</a>
+            <a href="/rewrite" className={`hover:text-white transition-colors text-[#34C759] font-bold`}>Bullet Fixer</a>
+            <a href="#pricing" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-white/60' : ''}`}>Pricing</a>
             <a href="#roast" className="hover:text-white transition-colors text-[#FF3B30] font-bold">Roast Me</a>
-          </div>
+          </nav>
 
           <div className="flex items-center gap-4">
             {user ? (
-              <div className="flex items-center gap-4">
-                <span className="hidden sm:inline font-mono text-xs text-white/40">
-                  {user.email}
-                </span>
-                {isPro && (
-                  <span className="px-2 py-0.5 bg-[#FF9500] text-black text-[10px] font-bold rounded uppercase tracking-tighter">
-                    PRO
-                  </span>
-                )}
+              <div className="relative">
                 <button
-                  onClick={() => supabase.auth.signOut()}
-                  className="font-mono text-xs text-white/60 hover:text-white"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="w-8 h-8 bg-[#FF3B30] rounded-full flex items-center justify-center font-bold text-white text-sm"
                 >
-                  Sign Out
+                  {user.email?.charAt(0).toUpperCase() || 'U'}
                 </button>
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute right-0 mt-2 w-48 bg-black border border-white/10 rounded-xl p-2 shadow-xl"
+                    >
+                      <div className="px-3 py-2 border-b border-white/10 mb-2">
+                        <p className="font-mono text-xs text-white/60 truncate">{user.email}</p>
+                        {isPro && <span className="text-[10px] text-[#FF9500] font-bold">PRO</span>}
+                      </div>
+                      <a href="/dashboard" className="block px-3 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 rounded-lg">Dashboard</a>
+                      <button
+                        onClick={() => supabase.auth.signOut()}
+                        className="w-full text-left px-3 py-2 text-sm text-white/60 hover:text-white hover:bg-white/5 rounded-lg"
+                      >
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <button
@@ -148,8 +162,39 @@ export default function Home() {
                 Sign In
               </button>
             )}
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden w-8 h-8 flex flex-col items-center justify-center gap-1.5"
+            >
+              <span className={`w-6 h-0.5 bg-white transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`w-6 h-0.5 bg-white transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`} />
+              <span className={`w-6 h-0.5 bg-white transition-all ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            </button>
           </div>
         </div>
+
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-black/80 backdrop-blur-xl border-t border-white/5 overflow-hidden"
+            >
+              <div className="px-6 py-4 flex flex-col gap-4 font-mono text-sm">
+                {user && (
+                  <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">Dashboard</a>
+                )}
+                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">How it works</a>
+                <a href="/match" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#34C759] font-bold">Job Match</a>
+                <a href="/rewrite" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#34C759] font-bold">Bullet Fixer</a>
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">Pricing</a>
+                <a href="#roast" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#FF3B30] font-bold">Roast Me</a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main>
@@ -182,9 +227,18 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.8 }}
-              className="max-w-2xl mx-auto font-mono text-sm md:text-base text-white/40 mb-16 leading-relaxed"
+              className="max-w-2xl mx-auto font-mono text-sm md:text-base text-white/40 mb-8 leading-relaxed"
             >
-              Stop sending boring resumes to the void. Get a savage, AI-driven critique and convert your career path into a shareable roast card.
+              Upload your resume. Get a brutally honest score in 30 seconds. Free, no signup required.
+            </motion.p>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: 0.8 }}
+              className="font-mono text-sm text-[#FF3B30] mb-12"
+            >
+              🔥 47 resumes roasted in the last hour
             </motion.p>
 
             <motion.div
@@ -265,7 +319,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="glass-card rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden">
+            <div className="glass-card rounded-[2.5rem] p-8 md:p-16 relative overflow-hidden" ref={demoRef}>
               <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#FF3B30]/5 to-transparent pointer-events-none" />
               <ScoreCard result={DEMO_RESULT} />
             </div>
@@ -273,30 +327,46 @@ export default function Home() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-32 bg-white/[0.02] border-y border-white/5">
-          <div className="max-w-4xl mx-auto text-center px-6">
+        <section className="py-24 bg-white/[0.02] border-y border-white/5">
+          <div className="max-w-5xl mx-auto px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0"
             >
-              <p className="font-mono text-white/30 text-xs uppercase tracking-[0.3em] mb-8">
-                Global Impact Report
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                <div className="text-center md:text-right">
-                  <p className="font-playfair text-7xl md:text-9xl font-bold text-[#FF3B30] text-glow">
-                    {isLoadingCount ? '---' : Math.floor(roastCount / 1000) + 'k'}
-                  </p>
-                  <p className="font-mono text-white/40 mt-2">CAREERS ROASTED</p>
-                </div>
-                <div className="text-center md:text-left border-t md:border-t-0 md:border-l border-white/10 pt-8 md:pt-0 md:pl-16">
-                  <p className="font-playfair text-5xl font-bold mb-4">"It actually helped."</p>
-                  <p className="font-mono text-white/50 text-sm">
-                    Despite the insults, 84% of users improved their call-back rate after implementing our AI tips.
-                  </p>
-                </div>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0 }}
+                className="text-center md:border-r border-white/10 md:pr-8"
+              >
+                <p className="font-playfair text-5xl md:text-6xl font-bold text-[#FF3B30] text-glow">
+                  {isLoadingCount ? '---' : roastCount.toLocaleString()}
+                </p>
+                <p className="font-mono text-white/40 mt-2 text-sm">CAREERS ROASTED</p>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.15 }}
+                className="text-center md:border-r border-white/10 md:px-8 py-8 md:py-0"
+              >
+                <p className="font-playfair text-5xl md:text-6xl font-bold text-[#FF3B30]">84%</p>
+                <p className="font-mono text-white/40 mt-2 text-sm">Improved callback rate</p>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="text-center md:pl-8 pt-8 md:pt-0"
+              >
+                <p className="font-playfair text-5xl md:text-6xl font-bold text-[#FF3B30]">30s</p>
+                <p className="font-mono text-white/40 mt-2 text-sm">Average time to roast</p>
+              </motion.div>
             </motion.div>
           </div>
         </section>
@@ -313,7 +383,7 @@ export default function Home() {
                 <h4 className="font-playfair text-3xl font-bold mb-2">The Freebie</h4>
                 <p className="font-mono text-sm text-white/40 mb-8 italic">For the curious</p>
                 <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-bold">₹0</span>
+                  <span className="text-4xl font-bold">$0</span>
                   <span className="text-white/40 font-mono text-xs">/FOREVER</span>
                 </div>
                 <ul className="space-y-5 font-inter text-sm text-white/60 mb-10">
@@ -340,10 +410,11 @@ export default function Home() {
                 <div className="absolute top-0 right-0 px-4 py-1 bg-[#FF3B30] text-white font-mono text-[10px] font-bold uppercase tracking-widest -rotate-0">Popular</div>
                 <h4 className="font-playfair text-3xl font-bold mb-2">The Roast Professional</h4>
                 <p className="font-mono text-sm text-[#FF3B30]/60 mb-8 italic">For the ambitious</p>
-                <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-4xl font-bold">₹9</span>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-4xl font-bold">$9</span>
                   <span className="text-white/40 font-mono text-xs uppercase">/Month</span>
                 </div>
+                <p className="font-mono text-xs text-white/30 mb-8">~₹750/mo for Indian users</p>
                 <ul className="space-y-5 font-inter text-sm text-white/80 mb-10">
                   <li className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full bg-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30]">
@@ -418,7 +489,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-16 border-t border-white/5 font-mono text-[10px] text-white/20 uppercase tracking-[0.2em]">
-            <p>© 2024 RESUMEROASTER. ALL RIGHTS RESERVED.</p>
+            <p>© {new Date().getFullYear()} RESUMEROASTER. ALL RIGHTS RESERVED.</p>
             <p>Made with 🔥 for the job hunt.</p>
           </div>
         </div>

@@ -29,7 +29,7 @@ export default function JobMatchResults({ result, isPro, onUpgradeNeeded }: JobM
                             onClick={onUpgradeNeeded}
                             className="px-8 py-4 bg-[#FF3B30] text-white rounded-full font-mono text-sm font-bold uppercase tracking-widest hover:bg-[#ff5247] transition-all shadow-[0_0_20px_rgba(255,59,48,0.4)]"
                         >
-                            Go Pro for ₹9/mo
+                            Go Pro for $9/mo
                         </button>
                     </div>
                 </div>

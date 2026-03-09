@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { RoastResult } from '@/lib/pdfExtractor';
 
 interface ScoreCardProps {
@@ -24,34 +24,32 @@ const getGradeColor = (grade: string): string => {
 
 export default function ScoreCard({ result }: ScoreCardProps) {
   const [animatedScore, setAnimatedScore] = useState(0);
-  const [showContent, setShowContent] = useState(false);
   const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
+  
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowContent(true), 500);
+    if (!isInView) return;
 
-    let current = 0;
+    let startTime: number | null = null;
     const end = result.overallScore;
-    if (current === end) return;
-
     const duration = 2000;
-    const increment = end / (duration / 16);
 
-    const scoreTimer = setInterval(() => {
-      current += increment;
-      if (current >= end) {
-        setAnimatedScore(end);
-        clearInterval(scoreTimer);
-      } else {
-        setAnimatedScore(Math.floor(current));
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      setAnimatedScore(Math.floor(progress * end));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
       }
-    }, 16);
-
-    return () => {
-      clearTimeout(timer);
-      clearInterval(scoreTimer);
     };
-  }, [result.overallScore]);
+
+    requestAnimationFrame(animate);
+  }, [isInView, result.overallScore]);
 
   return (
     <div className="w-full max-w-7xl mx-auto py-12">
@@ -98,13 +96,29 @@ export default function ScoreCard({ result }: ScoreCardProps) {
               </div>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-2 mt-auto">
+            <motion.div 
+              className="flex flex-wrap justify-center gap-2 mt-auto"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ 
+                delay: 0.8, 
+                type: "spring", 
+                stiffness: 300, 
+                damping: 15 
+              }}
+            >
               {result.badges.map((badge, i) => (
-                <span key={i} className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg font-mono text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                <motion.span 
+                  key={i} 
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.8 + (i * 0.1), type: "spring", stiffness: 300, damping: 15 }}
+                  className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg font-mono text-[10px] text-white/40 uppercase tracking-widest font-bold"
+                >
                   {badge}
-                </span>
+                </motion.span>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           <div className="glass-card rounded-[2.5rem] p-10 bg-[#FF3B30]/5 border-[#FF3B30]/10">
@@ -118,7 +132,7 @@ export default function ScoreCard({ result }: ScoreCardProps) {
         {/* Right Dashboard Column: Metrics Grid */}
         <div className="lg:w-2/3">
           <AnimatePresence>
-            {showContent && (
+            {isInView && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -160,16 +174,34 @@ export default function ScoreCard({ result }: ScoreCardProps) {
                       </div>
                     </div>
 
-                    <p className="font-inter text-lg text-white/80 italic leading-relaxed mb-8 flex-1">
+                    <p className="font-inter text-lg text-white/80 italic leading-relaxed mb-6 flex-1">
                       "{category.roastLine}"
                     </p>
 
-                    <div className="p-4 bg-black/40 rounded-xl border border-white/5 flex items-start gap-3">
-                      <span className="text-base">🧠</span>
-                      <span className="font-mono text-[11px] text-white/50 leading-relaxed italic">
-                        {category.tip}
-                      </span>
+                    <div className="mt-auto">
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: getScoreColor(category.score) }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${category.score}%` }}
+                          transition={{ 
+                            duration: 0.8, 
+                            delay: i * 0.15,
+                            ease: "easeOut"
+                          }}
+                        />
+                      </div>
                     </div>
+
+                    {category.tip && (
+                      <div className="p-4 bg-black/40 rounded-xl border border-white/5 flex items-start gap-3 mt-4">
+                        <span className="text-base">🧠</span>
+                        <span className="font-mono text-[11px] text-white/50 leading-relaxed italic">
+                          {category.tip}
+                        </span>
+                      </div>
+                    )}
                   </motion.div>
                 ))}
               </motion.div>

@@ -303,7 +303,7 @@ export default function IndustryLandingClient({ content }: IndustryLandingClient
       <footer className="pt-16 pb-8 px-6 border-t border-white/5">
         <div className="max-w-7xl mx-auto text-center">
           <p className="font-mono text-white/30 text-xs">
-            © 2024 ResuméRoast. All rights reserved.
+            © {new Date().getFullYear()} ResuméRoast. All rights reserved.
           </p>
         </div>
       </footer>
