@@ -14,9 +14,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ResuméRoast — Brutally Honest AI Resume Feedback',
-  description: 'Upload your resume and get a savage, AI-driven critique with a score, roast card, and actionable tips. Free. No signup required. Results in 30 seconds.',
-  keywords: ['resume feedback', 'AI resume review', 'ATS checker', 'resume score', 'resume roast'],
+  title: 'ResuméRoast — AI Resume Roast, Interview Prep & Cover Letter Generator',
+  description: 'Get a brutally honest AI resume score, personalized interview questions, AI cover letters, and ATS job matching. Free instant results in 30 seconds.',
+  keywords: ['resume feedback', 'AI resume review', 'ATS checker', 'resume score', 'resume roast', 'AI interview prep', 'cover letter generator', 'job match analyzer'],
   openGraph: {
     title: 'ResuméRoast — Is Your Resume Good Enough?',
     description: 'Get a brutal AI score on your resume. Free, instant, and actually helpful.',

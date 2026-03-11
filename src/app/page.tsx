@@ -63,7 +63,7 @@ export default function Home() {
       if (session?.user) {
         setUser(session.user);
         const { data } = await supabase
-          .from('users')
+          .from('profiles')
           .select('is_pro')
           .eq('id', session.user.id)
           .single();
@@ -115,11 +115,12 @@ export default function Home() {
             {user && (
               <a href="/dashboard" className={`hover:text-white transition-colors ${pathname === '/dashboard' ? 'text-[#FF3B30] underline underline-offset-4' : 'text-white/60'}`}>Dashboard</a>
             )}
-            <a href="#how-it-works" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-[#FF3B30] underline underline-offset-4' : 'text-white/60'}`}>How it works</a>
-            <a href="/match" className={`hover:text-white transition-colors text-[#34C759] font-bold`}>Job Match</a>
-            <a href="/rewrite" className={`hover:text-white transition-colors text-[#34C759] font-bold`}>Bullet Fixer</a>
-            <a href="#pricing" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-white/60' : ''}`}>Pricing</a>
-            <a href="#roast" className="hover:text-white transition-colors text-[#FF3B30] font-bold">Roast Me</a>
+            <a href="#how-it-works" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-white/60' : 'text-white/60'}`}>How it works</a>
+            <a href="/match" className="hover:text-white transition-colors text-[#34C759] font-bold">Job Match</a>
+            <a href="/interview" className="hover:text-white transition-colors text-[#007AFF] font-bold">Interview Prep</a>
+            <a href="/cover-letter" className="hover:text-white transition-colors text-[#AF52DE] font-bold">Cover Letter</a>
+            <a href="/rewrite" className="hover:text-white transition-colors text-white/60">Bullet Fixer</a>
+            <a href="#pricing" className="hover:text-white transition-colors text-white/60">Pricing</a>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -155,12 +156,12 @@ export default function Home() {
                 </AnimatePresence>
               </div>
             ) : (
-              <button
-                onClick={() => setShowAuth(true)}
+              <a
+                href="/login"
                 className="px-5 py-2 bg-white/5 border border-white/10 rounded-full font-mono text-xs hover:bg-white/10 transition-all hover:border-white/20"
               >
                 Sign In
-              </button>
+              </a>
             )}
 
             <button
@@ -188,9 +189,10 @@ export default function Home() {
                 )}
                 <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">How it works</a>
                 <a href="/match" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#34C759] font-bold">Job Match</a>
-                <a href="/rewrite" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#34C759] font-bold">Bullet Fixer</a>
+                <a href="/interview" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#007AFF] font-bold">Interview Prep</a>
+                <a href="/cover-letter" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#AF52DE] font-bold">Cover Letter</a>
+                <a href="/rewrite" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">Bullet Fixer</a>
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">Pricing</a>
-                <a href="#roast" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#FF3B30] font-bold">Roast Me</a>
               </div>
             </motion.div>
           )}
@@ -374,72 +376,120 @@ export default function Home() {
         {/* Pricing Section */}
         <section id="pricing" className="py-32 px-6">
           <div className="max-w-5xl mx-auto">
-            <h3 className="font-playfair text-4xl md:text-6xl font-bold text-center mb-20 text-glow">Choose Your Pain</h3>
-            <div className="grid md:grid-cols-2 gap-8 items-center">
+            <div className="text-center mb-20">
+              <div className="inline-block px-4 py-1.5 mb-6 rounded-full bg-white/5 border border-white/10">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#FF9500] font-bold">Simple Pricing</span>
+              </div>
+              <h3 className="font-playfair text-4xl md:text-6xl font-bold text-glow">Choose Your Pain</h3>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 items-stretch">
+              {/* Free */}
               <motion.div
-                whileHover={{ y: -10 }}
-                className="p-10 glass-card rounded-3xl border-white/5"
+                whileHover={{ y: -8 }}
+                className="p-8 glass-card rounded-3xl border-white/5 flex flex-col"
               >
-                <h4 className="font-playfair text-3xl font-bold mb-2">The Freebie</h4>
-                <p className="font-mono text-sm text-white/40 mb-8 italic">For the curious</p>
+                <h4 className="font-playfair text-2xl font-bold mb-1">Free</h4>
+                <p className="font-mono text-xs text-white/40 mb-6 italic">For the curious</p>
                 <div className="flex items-baseline gap-1 mb-8">
                   <span className="text-4xl font-bold">$0</span>
-                  <span className="text-white/40 font-mono text-xs">/FOREVER</span>
+                  <span className="text-white/40 font-mono text-xs">/forever</span>
                 </div>
-                <ul className="space-y-5 font-inter text-sm text-white/60 mb-10">
+                <ul className="space-y-4 font-inter text-sm text-white/50 mb-8 flex-1">
                   <li className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full" />
+                    <div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full shrink-0" />
                     3 resume roasts per week
                   </li>
                   <li className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full" />
+                    <div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full shrink-0" />
+                    3 bullet rewrites per week
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <div className="w-1.5 h-1.5 bg-[#FF3B30] rounded-full shrink-0" />
                     Standard AI feedback
                   </li>
                   <li className="flex items-center gap-3 opacity-30">
-                    <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                    HD Shareable roast card
+                    <div className="w-1.5 h-1.5 bg-white rounded-full shrink-0" />
+                    Interview Prep
+                  </li>
+                  <li className="flex items-center gap-3 opacity-30">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full shrink-0" />
+                    Cover Letter Generator
                   </li>
                 </ul>
-                <button className="w-full py-4 rounded-xl border border-white/10 font-mono text-xs uppercase font-bold tracking-widest hover:bg-white/5 transition-colors">Start Free</button>
+                <a href="#roast" className="w-full py-4 rounded-xl border border-white/10 font-mono text-xs uppercase font-bold tracking-widest hover:bg-white/5 transition-colors text-center block">Start Free</a>
               </motion.div>
 
+              {/* Pro Monthly */}
               <motion.div
-                whileHover={{ y: -10 }}
-                className="p-10 glass-card rounded-3xl border-[#FF3B30]/30 relative overflow-hidden"
+                whileHover={{ y: -8 }}
+                className="p-8 glass-card rounded-3xl border-[#FF3B30]/30 relative overflow-hidden flex flex-col"
               >
-                <div className="absolute top-0 right-0 px-4 py-1 bg-[#FF3B30] text-white font-mono text-[10px] font-bold uppercase tracking-widest -rotate-0">Popular</div>
-                <h4 className="font-playfair text-3xl font-bold mb-2">The Roast Professional</h4>
-                <p className="font-mono text-sm text-[#FF3B30]/60 mb-8 italic">For the ambitious</p>
-                <div className="flex items-baseline gap-1 mb-2">
-                  <span className="text-4xl font-bold">$9</span>
-                  <span className="text-white/40 font-mono text-xs uppercase">/Month</span>
+                <div className="absolute top-0 right-0 px-4 py-1 bg-[#FF3B30] text-white font-mono text-[10px] font-bold uppercase tracking-widest">Popular</div>
+                <h4 className="font-playfair text-2xl font-bold mb-1">Pro</h4>
+                <p className="font-mono text-xs text-[#FF3B30]/60 mb-6 italic">For the ambitious</p>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-4xl font-bold">₹299</span>
+                  <span className="text-white/40 font-mono text-xs">/month</span>
                 </div>
-                <p className="font-mono text-xs text-white/30 mb-8">~₹750/mo for Indian users</p>
-                <ul className="space-y-5 font-inter text-sm text-white/80 mb-10">
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30]">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    </div>
-                    Unlimited savage roasts
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30]">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    </div>
-                    "Fix It" AI Bullet Rewriter
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30]">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    </div>
-                    HD PNG & PDF Exports
-                  </li>
+                <ul className="space-y-4 font-inter text-sm text-white/80 mb-8 flex-1">
+                  {[
+                    'Unlimited savage roasts',
+                    'AI Interview Prep',
+                    'AI Cover Letter Generator',
+                    'Unlimited Bullet Rewriter',
+                    'Job Match ATS Analyzer',
+                    'HD PNG & PDF Exports',
+                    'Priority AI processing',
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] shrink-0">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                      </div>
+                      {feature}
+                    </li>
+                  ))}
                 </ul>
                 <button
                   onClick={handleUpgrade}
                   className="w-full py-4 rounded-xl bg-[#FF3B30] text-white font-mono text-xs uppercase font-bold tracking-widest hover:bg-[#FF3B30]/90 transition-all accent-glow"
                 >
                   Go Pro Now
+                </button>
+              </motion.div>
+
+              {/* Pro Yearly */}
+              <motion.div
+                whileHover={{ y: -8 }}
+                className="p-8 glass-card rounded-3xl border-[#34C759]/20 relative overflow-hidden flex flex-col"
+              >
+                <div className="absolute top-0 right-0 px-4 py-1 bg-[#34C759] text-black font-mono text-[10px] font-bold uppercase tracking-widest">Save 44%</div>
+                <h4 className="font-playfair text-2xl font-bold mb-1">Pro Yearly</h4>
+                <p className="font-mono text-xs text-[#34C759]/60 mb-6 italic">Best value</p>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className="text-4xl font-bold">₹1,999</span>
+                  <span className="text-white/40 font-mono text-xs">/year</span>
+                </div>
+                <p className="font-mono text-xs text-white/30 mb-8">That's just ₹167/month</p>
+                <ul className="space-y-4 font-inter text-sm text-white/80 mb-8 flex-1">
+                  {[
+                    'Everything in Pro Monthly',
+                    'Save ₹1,589/year',
+                    'Early access to new features',
+                    'Priority support',
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-[#34C759]/20 flex items-center justify-center text-[#34C759] shrink-0">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                      </div>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  onClick={handleUpgrade}
+                  className="w-full py-4 rounded-xl bg-[#34C759] text-black font-mono text-xs uppercase font-bold tracking-widest hover:bg-[#34C759]/90 transition-all"
+                >
+                  Go Pro Yearly
                 </button>
               </motion.div>
             </div>
@@ -470,10 +520,12 @@ export default function Home() {
             </div>
 
             <div>
-              <h6 className="font-mono text-xs uppercase tracking-[0.2em] font-bold mb-8">Navigation</h6>
+              <h6 className="font-mono text-xs uppercase tracking-[0.2em] font-bold mb-8">Tools</h6>
               <ul className="space-y-4 font-mono text-sm text-white/40">
-                <li><a href="#how-it-works" className="hover:text-[#FF3B30] transition-colors">How it works</a></li>
-                <li><a href="#pricing" className="hover:text-[#FF3B30] transition-colors">Pricing</a></li>
+                <li><a href="/match" className="hover:text-[#FF3B30] transition-colors">Job Match</a></li>
+                <li><a href="/interview" className="hover:text-[#FF3B30] transition-colors">Interview Prep</a></li>
+                <li><a href="/cover-letter" className="hover:text-[#FF3B30] transition-colors">Cover Letter</a></li>
+                <li><a href="/rewrite" className="hover:text-[#FF3B30] transition-colors">Bullet Fixer</a></li>
                 <li><a href="/contact" className="hover:text-[#FF3B30] transition-colors">Support</a></li>
               </ul>
             </div>
@@ -501,6 +553,8 @@ export default function Home() {
             isOpen={showUpgradeModal}
             onClose={() => setShowUpgradeModal(false)}
             onUpgrade={handleUpgrade}
+            userId={user?.id}
+            email={user?.email}
           />
         )}
       </AnimatePresence>

@@ -1,28 +1,23 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
-import UPIPayment from './UPIPayment';
+import RazorpayCheckout from './RazorpayCheckout';
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpgrade: () => void;
+  userId?: string;
+  email?: string;
 }
 
-export default function UpgradeModal({ isOpen, onClose, onUpgrade }: UpgradeModalProps) {
-  const handlePaymentComplete = () => {
-    onUpgrade();
-  };
-
+export default function UpgradeModal({ isOpen, onClose, onUpgrade, userId, email }: UpgradeModalProps) {
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <UPIPayment
-          onPaymentComplete={handlePaymentComplete}
-          onClose={onClose}
-        />
-      )}
-    </AnimatePresence>
+    <RazorpayCheckout
+      isOpen={isOpen}
+      onClose={onClose}
+      onSuccess={onUpgrade}
+      userId={userId}
+      email={email}
+    />
   );
 }
-
