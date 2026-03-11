@@ -52,7 +52,7 @@ export default function ScoreCard({ result }: ScoreCardProps) {
   }, [isInView, result.overallScore]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto py-12">
+    <div ref={ref} className="w-full max-w-7xl mx-auto py-12">
       <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-stretch">
         {/* Left Strategy Column: The Verdict & Grade */}
         <div className="lg:w-1/3 flex flex-col gap-10">
