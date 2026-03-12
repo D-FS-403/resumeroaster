@@ -6,6 +6,8 @@ import { RoastResult } from '@/lib/pdfExtractor';
 
 interface ScoreCardProps {
   result: RoastResult;
+  isPro?: boolean;
+  onUpgrade?: () => void;
 }
 
 const getScoreColor = (score: number): string => {
@@ -22,9 +24,17 @@ const getGradeColor = (grade: string): string => {
   return '#FF3B30';
 };
 
-export default function ScoreCard({ result }: ScoreCardProps) {
+export default function ScoreCard({ result, isPro = false, onUpgrade }: ScoreCardProps) {
   const [animatedScore, setAnimatedScore] = useState(0);
   const [hoveredCategory, setHoveredCategory] = useState<number | null>(null);
+  const [percentile, setPercentile] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/percentile?score=${result.overallScore}`)
+      .then(r => r.json())
+      .then(d => setPercentile(d.percentile))
+      .catch(() => {});
+  }, [result.overallScore]);
   
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -119,6 +129,19 @@ export default function ScoreCard({ result }: ScoreCardProps) {
                 </motion.span>
               ))}
             </motion.div>
+
+            {percentile !== null && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 }}
+                className="mt-6 px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-center"
+              >
+                <p className="font-mono text-[10px] uppercase tracking-widest text-white/30 mb-1">Beats</p>
+                <p className="font-playfair text-3xl font-bold text-[#FF9500]">{percentile}%</p>
+                <p className="font-mono text-[10px] uppercase tracking-widest text-white/30 mt-1">of all resumes</p>
+              </motion.div>
+            )}
           </div>
 
           <div className="glass-card rounded-[2.5rem] p-10 bg-[#FF3B30]/5 border-[#FF3B30]/10">
@@ -195,11 +218,23 @@ export default function ScoreCard({ result }: ScoreCardProps) {
                     </div>
 
                     {category.tip && (
-                      <div className="p-4 bg-black/40 rounded-xl border border-white/5 flex items-start gap-3 mt-4">
-                        <span className="text-base">🧠</span>
-                        <span className="font-mono text-[11px] text-white/50 leading-relaxed italic">
-                          {category.tip}
-                        </span>
+                      <div className="relative mt-4">
+                        <div className={`p-4 bg-black/40 rounded-xl border border-white/5 flex items-start gap-3 ${!isPro && category.score < 55 ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                          <span className="text-base">🧠</span>
+                          <span className="font-mono text-[11px] text-white/50 leading-relaxed italic">
+                            {category.tip}
+                          </span>
+                        </div>
+                        {!isPro && category.score < 55 && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <button
+                              onClick={onUpgrade}
+                              className="px-4 py-2 bg-[#FF3B30] text-white font-mono text-[10px] uppercase tracking-widest font-bold rounded-lg hover:bg-[#ff5247] transition-all shadow-lg"
+                            >
+                              🔓 Unlock Fix with Pro
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </motion.div>

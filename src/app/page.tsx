@@ -9,6 +9,7 @@ import RoastCard from '@/components/RoastCard';
 import UpgradeModal from '@/components/UpgradeModal';
 import AuthForm from '@/components/AuthForm';
 import ShareRoastButton from '@/components/ShareRoastButton';
+import ReferralBanner from '@/components/ReferralBanner';
 import { RoastResult } from '@/lib/pdfExtractor';
 import { supabase } from '@/lib/supabase';
 
@@ -34,6 +35,7 @@ export default function Home() {
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [roastCount, setRoastCount] = useState(0);
+  const [roastedLastHour, setRoastedLastHour] = useState(47);
   const [isLoadingCount, setIsLoadingCount] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -47,6 +49,7 @@ export default function Home() {
         const response = await fetch('/api/stats');
         const data = await response.json();
         setRoastCount(data.totalRoasts);
+        if (data.roastedLastHour) setRoastedLastHour(data.roastedLastHour);
       } catch {
         setRoastCount(10483);
       } finally {
@@ -240,7 +243,7 @@ export default function Home() {
               transition={{ delay: 0.25, duration: 0.8 }}
               className="font-mono text-sm text-[#FF3B30] mb-12"
             >
-              🔥 47 resumes roasted in the last hour
+              🔥 {roastedLastHour} resumes roasted in the last hour
             </motion.p>
 
             <motion.div
@@ -267,7 +270,7 @@ export default function Home() {
                   className="space-y-12"
                 >
                   <div className="glass-card rounded-3xl p-8 md:p-12">
-                    <ScoreCard result={roastResult as RoastResult} />
+                    <ScoreCard result={roastResult as RoastResult} isPro={isPro} onUpgrade={() => setShowUpgradeModal(true)} />
                   </div>
 
                   <div className="relative">
@@ -284,6 +287,11 @@ export default function Home() {
                       />
                     </div>
                   )}
+
+                  <ReferralBanner
+                    roastScore={roastResult.overallScore}
+                    roastHeadline={roastResult.roastHeadline}
+                  />
 
                   <button
                     onClick={() => {
@@ -427,10 +435,11 @@ export default function Home() {
                 <div className="absolute top-0 right-0 px-4 py-1 bg-[#FF3B30] text-white font-mono text-[10px] font-bold uppercase tracking-widest">Popular</div>
                 <h4 className="font-playfair text-2xl font-bold mb-1">Pro</h4>
                 <p className="font-mono text-xs text-[#FF3B30]/60 mb-6 italic">For the ambitious</p>
-                <div className="flex items-baseline gap-1 mb-8">
+                <div className="flex items-baseline gap-1 mb-2">
                   <span className="text-4xl font-bold">₹299</span>
                   <span className="text-white/40 font-mono text-xs">/month</span>
                 </div>
+                <p className="font-mono text-xs text-white/30 mb-8">≈ $3.50 USD / month</p>
                 <ul className="space-y-4 font-inter text-sm text-white/80 mb-8 flex-1">
                   {[
                     'Unlimited savage roasts',
@@ -469,7 +478,7 @@ export default function Home() {
                   <span className="text-4xl font-bold">₹1,999</span>
                   <span className="text-white/40 font-mono text-xs">/year</span>
                 </div>
-                <p className="font-mono text-xs text-white/30 mb-8">That's just ₹167/month</p>
+                <p className="font-mono text-xs text-white/30 mb-8">≈ $24 USD · Just ₹167/month</p>
                 <ul className="space-y-4 font-inter text-sm text-white/80 mb-8 flex-1">
                   {[
                     'Everything in Pro Monthly',

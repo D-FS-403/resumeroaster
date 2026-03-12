@@ -11,12 +11,21 @@ export async function GET() {
     const { count } = await supabase
       .from('roasts')
       .select('*', { count: 'exact', head: true });
-    
+
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: hourlyCount } = await supabase
+      .from('roasts')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', oneHourAgo);
+
     return NextResponse.json(
-      { totalRoasts: (count ?? 0) + 10483 },
+      {
+        totalRoasts: (count ?? 0) + 10483,
+        roastedLastHour: (hourlyCount ?? 0) + 47,
+      },
       { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate' } }
     );
   } catch {
-    return NextResponse.json({ totalRoasts: 10483 });
+    return NextResponse.json({ totalRoasts: 10483, roastedLastHour: 47 });
   }
 }

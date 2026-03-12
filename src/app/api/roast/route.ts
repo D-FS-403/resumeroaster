@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RoastResult } from '@/lib/pdfExtractor';
+import crypto from 'crypto';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
 
 const SYSTEM_PROMPT = `You are a brutally honest but entertaining resume critic. Analyze the resume text and return ONLY a valid JSON object — no markdown, no backticks, no explanation, just raw JSON — with exactly this structure:
 
@@ -107,6 +108,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Extract client IP
+    const forwarded = request.headers.get('x-forwarded-for');
+    const rawIp = forwarded
+      ? forwarded.split(',')[0].trim()
+      : (request.headers.get('x-real-ip') ?? '127.0.0.1');
+    const ipHash = crypto.createHash('sha256').update(rawIp).digest('hex');
+
+    // IP-based rate limiting for anonymous (non-pro) users only
+    if (!userId) {
+      try {
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const { count: recentCount } = await supabase
+          .from('roasts')
+          .select('*', { count: 'exact', head: true })
+          .eq('ip_hash', ipHash)
+          .gte('created_at', sevenDaysAgo);
+
+        if ((recentCount ?? 0) >= 3) {
+          return NextResponse.json(
+            { error: 'Free limit reached. Upgrade to Pro for unlimited roasts.' },
+            { status: 429 }
+          );
+        }
+      } catch (err) {
+        // ip_hash column may not exist yet — allow the roast through
+        console.warn('IP rate limit check failed (column may not exist):', err);
+      }
+    }
+
     const prompt = `${SYSTEM_PROMPT}\n\nResume text to analyze:\n${resumeText}`;
 
     const parsedResult = await parseWithRetry(prompt);
@@ -123,6 +153,7 @@ export async function POST(request: NextRequest) {
           badges: parsedResult.badges,
           categories: parsedResult.categories,
           is_anonymous: !userId,
+          ip_hash: ipHash,
         }
       ])
       .select('id')

@@ -17,8 +17,16 @@ create table if not exists public.roasts (
   roast_headline text not null,
   badges jsonb not null,
   categories jsonb not null,
+  is_anonymous boolean default false,
+  ip_hash text,
   created_at timestamptz default now()
 );
+
+-- Run this if the table already exists and you need to add the new columns:
+-- alter table public.roasts add column if not exists is_anonymous boolean default false;
+-- alter table public.roasts add column if not exists ip_hash text;
+-- create index if not exists idx_roasts_ip_hash on public.roasts(ip_hash) where ip_hash is not null;
+-- create index if not exists idx_roasts_created_at on public.roasts(created_at);
 
 -- Stats table
 create table if not exists public.stats (
