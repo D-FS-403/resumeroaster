@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callClaude, parseJSON } from '@/lib/claude';
+import { callGemini, parseJSON } from '@/lib/gemini';
 
 const SYSTEM_PROMPT = `You are an expert interviewer and career coach. Based on the resume provided, generate interview questions that the candidate is MOST LIKELY to be asked. Return ONLY valid JSON — no markdown, no backticks — with exactly this structure:
 
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     const userMessage = `Resume to analyze:\n${resumeText}`;
 
-    const rawText = await callClaude(SYSTEM_PROMPT, userMessage);
+    const rawText = await callGemini(SYSTEM_PROMPT, userMessage);
     const parsed = parseJSON(rawText);
 
     return NextResponse.json(parsed);

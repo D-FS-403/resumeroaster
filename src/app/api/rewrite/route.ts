@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callClaude } from '@/lib/claude';
+import { callGemini } from '@/lib/gemini';
 
 const SYSTEM_PROMPT = `You are a resume bullet point improver. Your job is to take a weak resume bullet point and rewrite it using the XYZ formula:
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userMessage = `Original bullet:\n${bullet}`;
-    const rewritten = await callClaude(SYSTEM_PROMPT, userMessage);
+    const rewritten = await callGemini(SYSTEM_PROMPT, userMessage);
 
     return NextResponse.json({ rewritten: rewritten.trim() });
   } catch (error) {

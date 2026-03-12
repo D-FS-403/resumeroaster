@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callClaude, parseJSON } from '@/lib/claude';
+import { callGemini, parseJSON } from '@/lib/gemini';
 
 const SYSTEM_PROMPT = `You are a LinkedIn profile expert and recruiter. Analyze the LinkedIn profile text provided and return ONLY valid JSON — no markdown, no backticks — with exactly this structure:
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     const userMessage = `LinkedIn profile to analyze:\n${profileText}`;
 
-    const rawText = await callClaude(SYSTEM_PROMPT, userMessage);
+    const rawText = await callGemini(SYSTEM_PROMPT, userMessage);
     const parsed = parseJSON(rawText);
 
     return NextResponse.json(parsed);

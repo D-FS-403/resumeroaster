@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { JobMatchResult } from '@/types';
-import { callClaude, parseJSON } from '@/lib/claude';
+import { callGemini, parseJSON } from '@/lib/gemini';
 
 const SYSTEM_PROMPT = `You are an expert ATS and recruiter simulator. Compare the resume against the job description and return ONLY raw JSON (no markdown, no backticks) in exactly this structure:
 
@@ -56,10 +56,10 @@ export async function POST(request: NextRequest) {
 
     let parsedResult: JobMatchResult;
     try {
-      const text = await callClaude(SYSTEM_PROMPT, userMessage);
+      const text = await callGemini(SYSTEM_PROMPT, userMessage);
       parsedResult = parseJSON<JobMatchResult>(text);
     } catch (parseError) {
-      console.error('Failed to parse Claude output:', parseError);
+      console.error('Failed to parse Gemini output:', parseError);
       return NextResponse.json(
         { error: 'Failed to process the match due to an unexpected AI response.' },
         { status: 500 }

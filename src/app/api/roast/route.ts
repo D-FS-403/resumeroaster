@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RoastResult } from '@/lib/pdfExtractor';
-import { callClaude, parseJSON } from '@/lib/claude';
+import { callGemini, parseJSON } from '@/lib/gemini';
 import { supabase } from '@/lib/supabase';
 import crypto from 'crypto';
 
@@ -27,7 +27,7 @@ Score these 5 categories: Impact (quantified achievements vs vague duties), Clar
 async function parseWithRetry(userMessage: string, retries = 3): Promise<RoastResult> {
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
-      const text = await callClaude(SYSTEM_PROMPT, userMessage);
+      const text = await callGemini(SYSTEM_PROMPT, userMessage);
       const parsed = parseJSON<RoastResult>(text);
 
       if (parsed.overallScore && parsed.grade && parsed.roastHeadline && parsed.categories) {
@@ -117,13 +117,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(parsedResult);
     }
 
-    // Save to leads if email is provided
     if (email) {
       await supabase.from('leads').insert([
-        {
-          email: email.trim(),
-          roast_id: roastData.id
-        }
+        { email: email.trim(), roast_id: roastData.id }
       ]);
     }
 
