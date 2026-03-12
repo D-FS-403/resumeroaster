@@ -123,6 +123,8 @@ export default function Home() {
             <a href="/interview" className="hover:text-white transition-colors text-[#007AFF] font-bold">Interview Prep</a>
             <a href="/cover-letter" className="hover:text-white transition-colors text-[#AF52DE] font-bold">Cover Letter</a>
             <a href="/rewrite" className="hover:text-white transition-colors text-white/60">Bullet Fixer</a>
+            <a href="/linkedin" className="hover:text-white transition-colors text-[#0077B5] font-bold">LinkedIn</a>
+            <a href="/compare" className="hover:text-white transition-colors text-[#34C759] font-bold">Compare</a>
             <a href="#pricing" className="hover:text-white transition-colors text-white/60">Pricing</a>
           </nav>
 
@@ -195,6 +197,8 @@ export default function Home() {
                 <a href="/interview" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#007AFF] font-bold">Interview Prep</a>
                 <a href="/cover-letter" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#AF52DE] font-bold">Cover Letter</a>
                 <a href="/rewrite" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">Bullet Fixer</a>
+                <a href="/linkedin" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#0077B5] font-bold">LinkedIn</a>
+                <a href="/compare" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#34C759] font-bold">Compare</a>
                 <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">Pricing</a>
               </div>
             </motion.div>

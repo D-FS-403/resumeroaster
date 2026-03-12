@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import ProductHuntBanner from '@/components/ProductHuntBanner';
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${ibmPlexMono.variable} antialiased`}
       >
+        <ProductHuntBanner />
         {children}
       </body>
     </html>
