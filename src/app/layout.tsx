@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   title: 'ResuméRoast — AI Resume Roast, Interview Prep & Cover Letter Generator',
   description: 'Get a brutally honest AI resume score, personalized interview questions, AI cover letters, and ATS job matching. Free instant results in 30 seconds.',
   keywords: ['resume feedback', 'AI resume review', 'ATS checker', 'resume score', 'resume roast', 'AI interview prep', 'cover letter generator', 'job match analyzer'],
+  icons: {
+    icon: '/icon.png',
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     title: 'ResuméRoast — Is Your Resume Good Enough?',
     description: 'Get a brutal AI score on your resume. Free, instant, and actually helpful.',

@@ -89,9 +89,7 @@ export default function LaunchPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#FF3B30] rounded-lg flex items-center justify-center font-bold text-white shadow-[0_0_20px_rgba(255,59,48,0.4)]">
-              R
-            </div>
+            <img src="/logo.png" alt="ResuméRoast" className="w-8 h-8 rounded-lg object-cover" />
             <h1 className="font-playfair text-2xl font-bold tracking-tight">
               Resumé<span className="text-[#FF3B30]" style={{ textShadow: '0 0 20px rgba(255,59,48,0.5)' }}>Roast</span>
             </h1>
@@ -105,16 +103,18 @@ export default function LaunchPage() {
           </nav>
           <div className="flex items-center gap-3">
             <a
-              href="https://www.producthunt.com/posts/resume-roast"
+              href="https://www.producthunt.com/posts/resumeroast-2?utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-resumeroast-2"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 bg-[#FF6154] text-white rounded-full font-mono text-xs font-bold uppercase tracking-wider hover:bg-[#FF6154]/80 transition-colors"
+              className="hidden sm:inline-flex"
             >
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13.604 8.4h-3.405V12h3.405c.98 0 1.8-.82 1.8-1.8 0-.98-.82-1.8-1.8-1.8z"/>
-                <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm1.604 14.4h-3.405V18H7.8V6h5.804c2.321 0 4.2 1.879 4.2 4.2 0 2.321-1.879 4.2-4.2 4.2z"/>
-              </svg>
-              Upvote
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1096162&theme=dark&t=1773298706813"
+                alt="ResuméRoast on Product Hunt"
+                width="200"
+                height="43"
+                className="h-[36px] w-auto"
+              />
             </a>
             <a href="/login" className="px-5 py-2 bg-white/5 border border-white/10 rounded-full font-mono text-xs hover:bg-white/10 transition-all">
               Sign In
@@ -182,7 +182,7 @@ export default function LaunchPage() {
                 </svg>
               </motion.a>
               <motion.a
-                href="https://www.producthunt.com/posts/resume-roast"
+                href="https://www.producthunt.com/posts/resumeroast-2"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.03 }}
@@ -366,7 +366,7 @@ export default function LaunchPage() {
                 </svg>
               </motion.a>
               <motion.a
-                href="https://www.producthunt.com/posts/resume-roast"
+                href="https://www.producthunt.com/posts/resumeroast-2"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.03 }}
@@ -403,7 +403,7 @@ export default function LaunchPage() {
             <a href="/" className="hover:text-white/50 transition-colors">Home</a>
             <a href="/dashboard" className="hover:text-white/50 transition-colors">Dashboard</a>
             <a
-              href="https://www.producthunt.com/posts/resume-roast"
+              href="https://www.producthunt.com/posts/resumeroast-2"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-[#FF6154] transition-colors"

@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:resumeroaster.xyz)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(magick identify:*)",
+      "Bash(convert identify:*)",
+      "Bash(npm list:*)",
+      "Bash(node -e \":*)",
+      "Bash(npx next:*)",
+      "Bash(find /g/extreme-project -maxdepth 2 -name .env* -o -name env.ts -o -name env.js)",
+      "Bash(grep -r @google/generative-ai /g/extreme-project --include=*.json)",
+      "Bash(grep -n JSON.parse /g/extreme-project/src/app/api/*/route.ts)",
+      "Bash(npm install:*)"
     ]
   }
 }

@@ -36,16 +36,18 @@ export default function ProductHuntBanner() {
                 <span className="bg-white/20 px-2 py-0.5 rounded font-bold ml-1">PHLAUNCH</span>
               </p>
               <a
-                href="https://www.producthunt.com/posts/resume-roast"
+                href="https://www.producthunt.com/posts/resumeroast-2?utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-resumeroast-2"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-1.5 bg-white text-[#FF6154] rounded-full font-mono text-[10px] font-bold uppercase tracking-wider hover:bg-white/90 transition-colors shrink-0"
+                className="hidden sm:inline-flex shrink-0"
               >
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M13.604 8.4h-3.405V12h3.405c.98 0 1.8-.82 1.8-1.8 0-.98-.82-1.8-1.8-1.8z"/>
-                  <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm1.604 14.4h-3.405V18H7.8V6h5.804c2.321 0 4.2 1.879 4.2 4.2 0 2.321-1.879 4.2-4.2 4.2z"/>
-                </svg>
-                Upvote Us
+                <img
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1096162&theme=dark&t=1773298706813"
+                  alt="ResuméRoast - Brutal AI feedback. Better resumes. More interviews. | Product Hunt"
+                  width="180"
+                  height="40"
+                  className="h-[34px] w-auto"
+                />
               </a>
             </div>
             <button onClick={dismiss} className="text-white/60 hover:text-white transition-colors shrink-0">

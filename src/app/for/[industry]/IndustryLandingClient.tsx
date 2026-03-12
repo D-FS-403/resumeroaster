@@ -73,9 +73,7 @@ export default function IndustryLandingClient({ content }: IndustryLandingClient
             className="flex items-center gap-2"
           >
             <a href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#FF3B30] rounded-lg flex items-center justify-center font-bold text-white shadow-[0_0_20px_rgba(255,59,48,0.4)]">
-                R
-              </div>
+              <img src="/logo.png" alt="ResuméRoast" className="w-8 h-8 rounded-lg object-cover" />
               <h1 className="font-playfair text-2xl font-bold tracking-tight">
                 Resumé<span className="text-[#FF3B30] text-glow">Roast</span>
               </h1>

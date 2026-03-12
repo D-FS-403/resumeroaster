@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RoastResult } from '@/lib/pdfExtractor';
+import { callClaude, parseJSON } from '@/lib/claude';
+import { supabase } from '@/lib/supabase';
 import crypto from 'crypto';
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
 
 const SYSTEM_PROMPT = `You are a brutally honest but entertaining resume critic. Analyze the resume text and return ONLY a valid JSON object — no markdown, no backticks, no explanation, just raw JSON — with exactly this structure:
 
@@ -25,49 +24,11 @@ const SYSTEM_PROMPT = `You are a brutally honest but entertaining resume critic.
 
 Score these 5 categories: Impact (quantified achievements vs vague duties), Clarity (no jargon or passive voice), ATS Readiness (keyword density and formatting), Relevance (current market fit, outdated skills), Originality (avoid clichés like 'results-driven'). Be funny but genuinely helpful. Return ONLY the raw JSON.`;
 
-function stripMarkdown(jsonString: string): string {
-  let cleaned = jsonString.trim();
-  cleaned = cleaned.replace(/^```json\s*/i, '');
-  cleaned = cleaned.replace(/^```\s*/i, '');
-  cleaned = cleaned.replace(/```$/i, '');
-  return cleaned;
-}
-
-async function callGemini(prompt: string): Promise<string> {
-  const response = await fetch(GEMINI_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt,
-            },
-          ],
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    console.error('Gemini API error response:', errorBody);
-    throw new Error(`Gemini API error: ${response.status} ${response.statusText}`);
-  }
-
-  const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-}
-
-async function parseWithRetry(prompt: string, retries = 3): Promise<RoastResult> {
+async function parseWithRetry(userMessage: string, retries = 3): Promise<RoastResult> {
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
-      const text = await callGemini(prompt);
-      const cleanedText = stripMarkdown(text);
-      const parsed = JSON.parse(cleanedText) as RoastResult;
+      const text = await callClaude(SYSTEM_PROMPT, userMessage);
+      const parsed = parseJSON<RoastResult>(text);
 
       if (parsed.overallScore && parsed.grade && parsed.roastHeadline && parsed.categories) {
         return parsed;
@@ -77,17 +38,11 @@ async function parseWithRetry(prompt: string, retries = 3): Promise<RoastResult>
     } catch (error) {
       console.error(`Attempt ${attempt + 1} failed:`, error);
       if (attempt === retries - 1) throw error;
-      // Exponential backoff or simple delay could be added here
     }
   }
 
   throw new Error('Failed to parse after retries');
 }
-
-import { supabase } from '@/lib/supabase';
-
-// Helper function to extract user from session (you check auth here if needed, or send user_id from client)
-// For MVP, if it's sent from client, we can grab it, else it will be null
 
 export async function POST(request: NextRequest) {
   try {
@@ -132,16 +87,14 @@ export async function POST(request: NextRequest) {
           );
         }
       } catch (err) {
-        // ip_hash column may not exist yet — allow the roast through
         console.warn('IP rate limit check failed (column may not exist):', err);
       }
     }
 
-    const prompt = `${SYSTEM_PROMPT}\n\nResume text to analyze:\n${resumeText}`;
+    const userMessage = `Resume text to analyze:\n${resumeText}`;
+    const parsedResult = await parseWithRetry(userMessage);
 
-    const parsedResult = await parseWithRetry(prompt);
-
-    // Save to Supabase (roasts table)
+    // Save to Supabase
     const { data: roastData, error: dbError } = await supabase
       .from('roasts')
       .insert([
@@ -161,7 +114,6 @@ export async function POST(request: NextRequest) {
 
     if (dbError) {
       console.error('Failed to save to Supabase:', dbError);
-      // Even if saving to DB fails, we can still return the roast to not break the user experience
       return NextResponse.json(parsedResult);
     }
 
@@ -173,20 +125,15 @@ export async function POST(request: NextRequest) {
           roast_id: roastData.id
         }
       ]);
-      // we purposely do not throw/fail the main route if the lead insert fails (e.g duplicate email)
     }
 
-    // Attach the DB id to the result
     const resultWithId = { ...parsedResult, id: roastData.id };
-
     return NextResponse.json(resultWithId);
   } catch (error) {
     console.error('Roast API error:', error);
-
     return NextResponse.json(
       { error: 'Failed to analyze resume. Please try again.' },
       { status: 500 }
     );
   }
 }
-
