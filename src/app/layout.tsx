@@ -16,8 +16,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: 'ResuméRoast — AI Resume Roast, Interview Prep & Cover Letter Generator',
-  description: 'Get a brutally honest AI resume score, personalized interview questions, AI cover letters, and ATS job matching. Free instant results in 30 seconds.',
-  keywords: ['resume feedback', 'AI resume review', 'ATS checker', 'resume score', 'resume roast', 'AI interview prep', 'cover letter generator', 'job match analyzer'],
+  description: 'Free AI resume checker — get an instant score on ATS compatibility, impact, and clarity. Plus interview prep, AI cover letters, and job match analysis. No signup required.',
+  keywords: ['resume feedback', 'AI resume review', 'ATS checker', 'resume score', 'resume roast', 'AI interview prep', 'cover letter generator', 'job match analyzer', 'ATS resume checker', 'resume ATS score', 'AI resume feedback free', 'resume keyword checker'],
   icons: {
     icon: '/icon.png',
     apple: '/apple-touch-icon.png',
@@ -44,11 +44,50 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ResuméRoast",
+      "url": "https://resumeroaster.xyz",
+      "logo": "https://resumeroaster.xyz/logo.png",
+      "sameAs": ["https://twitter.com/resumeroast"],
+      "description": "AI-powered resume analysis, interview prep, cover letter generation, and job matching tools."
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "ResuméRoast",
+      "url": "https://resumeroaster.xyz",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "Free resume analysis with AI scoring"
+      },
+      "description": "Get a brutally honest AI resume score, interview prep questions, AI cover letters, and ATS job matching in 30 seconds.",
+      "featureList": [
+        "AI Resume Scoring",
+        "ATS Compatibility Check",
+        "Interview Question Generator",
+        "Cover Letter Writer",
+        "Job Match Analyzer",
+        "Bullet Point Rewriter"
+      ]
+    }
+  ];
+
   return (
     <html lang="en">
       <body
         className={`${playfair.variable} ${ibmPlexMono.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ProductHuntBanner />
         {children}
       </body>

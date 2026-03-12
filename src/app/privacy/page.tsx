@@ -19,6 +19,14 @@ export default function PrivacyPage() {
         {
             title: "Contact Info",
             content: "If you sign up, we store your email to manage your roasts. We won't sell it to recruiters (they're already judging you for free)."
+        },
+        {
+            title: "Data Retention",
+            content: "Resume text submitted for analysis is processed in real-time and not retained on our servers after the analysis completes. If you have an account, your roast scores, grades, and AI-generated feedback are stored in your profile for your own reference and can be deleted at any time from your dashboard. We retain account email addresses for as long as your account is active."
+        },
+        {
+            title: "What Happens to Your Resume",
+            content: "When you upload a PDF, text is extracted in your browser and transmitted to our API over HTTPS. That text is passed to an AI model (OpenAI GPT) for analysis, then discarded. The AI provider's data handling policies apply during processing — we do not use your resume content for model training and you can review OpenAI's API data policy at openai.com/policies. No resume file is ever written to permanent storage by ResuméRoast."
         }
     ];
 

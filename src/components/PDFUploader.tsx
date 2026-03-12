@@ -233,10 +233,27 @@ export default function PDFUploader({ onRoastComplete, onUpgradeNeeded, isPro, u
                 </p>
               </div>
 
+              <div className="flex flex-wrap justify-center gap-2 mb-6">
+                <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-full font-mono text-[10px] text-white/30">
+                  PDF format only
+                </span>
+                <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-full font-mono text-[10px] text-white/30">
+                  Max 10MB
+                </span>
+                <span className="px-3 py-1 bg-white/5 border border-white/5 rounded-full font-mono text-[10px] text-white/30">
+                  Text-layer required (not scanned)
+                </span>
+              </div>
+
               <div className="flex items-center justify-center gap-6 font-mono text-xs text-white/40 mt-4">
-                <span className="flex items-center gap-2">
+                <span className="relative group flex items-center gap-2 cursor-default">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                   Private & Secure
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-3 bg-black border border-white/10 rounded-xl text-left opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 whitespace-normal">
+                    <p className="font-mono text-[10px] text-white/60 leading-relaxed">
+                      Your resume is processed in-memory. No file is stored on our servers. Text is sent securely via HTTPS and discarded after scoring.
+                    </p>
+                  </div>
                 </span>
                 <span className="flex items-center gap-2">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>

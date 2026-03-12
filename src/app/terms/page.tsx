@@ -19,6 +19,10 @@ export default function TermsPage() {
         {
             title: "Intellectual Property",
             content: "The insults are ours. The resume is yours. The shame is mutual."
+        },
+        {
+            title: "Data Processing",
+            content: "By uploading a resume you consent to its text being transmitted to a third-party AI service (OpenAI) solely for the purpose of generating feedback. You represent that you own the resume or have permission to submit it for analysis. We do not claim ownership over any content you submit."
         }
     ];
 

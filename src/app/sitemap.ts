@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { VALID_INDUSTRIES } from '@/lib/industryContent';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://resumeroast.com';
+  const baseUrl = 'https://resumeroaster.xyz';
 
   const staticPages = [
     {
