@@ -13,6 +13,15 @@ import ReferralBanner from '@/components/ReferralBanner';
 import { RoastResult } from '@/lib/pdfExtractor';
 import { supabase } from '@/lib/supabase';
 
+const NAV_TOOLS = [
+  { icon: '🎯', label: 'Job Match', href: '/match', color: '#FF9500', desc: 'ATS match score for any job' },
+  { icon: '🎤', label: 'Interview', href: '/interview', color: '#007AFF', desc: 'Predict your interview questions' },
+  { icon: '✉️', label: 'Cover Letter', href: '/cover-letter', color: '#AF52DE', desc: 'One-click tailored letters' },
+  { icon: '⚡', label: 'Bullet Fixer', href: '/rewrite', color: '#34C759', desc: 'Rewrite bullets into achievements' },
+  { icon: '💼', label: 'LinkedIn', href: '/linkedin', color: '#0077B5', desc: 'Optimize your LinkedIn profile' },
+  { icon: '⚖️', label: 'Compare', href: '/compare', color: '#34C759', desc: 'A/B compare two resume versions' },
+];
+
 const DEMO_RESULT: RoastResult = {
   overallScore: 34,
   grade: 'D',
@@ -39,6 +48,7 @@ export default function Home() {
   const [isLoadingCount, setIsLoadingCount] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const demoRef = useRef(null);
   const isDemoInView = useInView(demoRef, { once: true, margin: '-100px' });
@@ -83,6 +93,12 @@ export default function Home() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   const handleUpgrade = () => {
     setShowUpgradeModal(true);
   };
@@ -99,12 +115,12 @@ export default function Home() {
         <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-[#FF9500]/5 rounded-full blur-[100px]" />
       </div>
 
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+      <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 pointer-events-auto"
           >
             <img src="/logo.png" alt="ResuméRoast" className="w-8 h-8 rounded-lg object-cover" />
             <h1 className="font-playfair text-2xl font-bold tracking-tight">
@@ -112,23 +128,43 @@ export default function Home() {
             </h1>
           </motion.div>
 
-          <nav className="hidden md:flex items-center gap-8 font-mono text-sm">
-            {user && (
-              <a href="/dashboard" className={`hover:text-white transition-colors ${pathname === '/dashboard' ? 'text-[#FF3B30] underline underline-offset-4' : 'text-white/60'}`}>Dashboard</a>
-            )}
-            <a href="#how-it-works" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-white/60' : 'text-white/60'}`}>How it works</a>
-            <div className="w-px h-4 bg-white/10" />
-            <a href="/match" className="hover:text-white transition-colors text-[#34C759] font-bold">Job Match</a>
-            <a href="/interview" className="hover:text-white transition-colors text-[#007AFF] font-bold">Interview Prep</a>
-            <a href="/cover-letter" className="hover:text-white transition-colors text-[#AF52DE] font-bold">Cover Letter</a>
-            <a href="/rewrite" className="hover:text-white transition-colors text-white/60">Bullet Fixer</a>
-            <a href="/linkedin" className="hover:text-white transition-colors text-[#0077B5] font-bold">LinkedIn</a>
-            <a href="/compare" className="hover:text-white transition-colors text-[#34C759] font-bold">Compare</a>
-            <div className="w-px h-4 bg-white/10" />
-            <a href="#pricing" className="hover:text-white transition-colors text-white/60">Pricing</a>
-          </nav>
+          {/* Floating Pill Nav */}
+          <motion.nav
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className={`hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-1 px-3 py-2 rounded-full
+              border backdrop-blur-2xl transition-all duration-500 pointer-events-auto font-mono text-[11px]
+              ${scrolled
+                ? 'bg-black/90 border-white/20 shadow-[0_8px_32px_rgba(255,59,48,0.15)]'
+                : 'bg-black/70 border-white/10'}`}
+          >
+            <a href="#how-it-works"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-white/50 hover:text-white hover:bg-white/5 transition-all">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              How it works
+            </a>
+            <div className="w-px h-4 bg-white/10 mx-1" />
+            {NAV_TOOLS.map((tool) => (
+              <motion.a
+                key={tool.href}
+                href={tool.href}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-full transition-all"
+                whileHover={{ backgroundColor: `${tool.color}18`, color: tool.color }}
+                style={{ color: pathname === tool.href ? tool.color : 'rgba(255,255,255,0.5)' }}
+              >
+                <span className="text-xs">{tool.icon}</span>
+                <span className="hidden sm:inline">{tool.label}</span>
+              </motion.a>
+            ))}
+            <div className="w-px h-4 bg-white/10 mx-1" />
+            <a href="#pricing"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-white/50 hover:text-white hover:bg-white/5 transition-all">
+              $ Pricing
+            </a>
+          </motion.nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 pointer-events-auto">
             {user ? (
               <div className="relative">
                 <button
@@ -178,7 +214,7 @@ export default function Home() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden w-8 h-8 flex flex-col items-center justify-center gap-1.5"
+              className="lg:hidden w-8 h-8 flex flex-col items-center justify-center gap-1.5"
             >
               <span className={`w-6 h-0.5 bg-white transition-all ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
               <span className={`w-6 h-0.5 bg-white transition-all ${mobileMenuOpen ? 'opacity-0' : ''}`} />
@@ -190,41 +226,56 @@ export default function Home() {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-black/80 backdrop-blur-xl border-t border-white/5 overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-2xl lg:hidden overflow-y-auto pointer-events-auto"
             >
-              <div className="px-6 py-4 flex flex-col gap-6 font-mono text-sm">
-                {user && (
-                  <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">Dashboard</a>
+              {/* Header: Logo + X Close */}
+              <div className="flex justify-between items-center px-6 py-5 border-b border-white/5">
+                <div className="flex items-center gap-2">
+                  <img src="/logo.png" alt="ResuméRoast" className="w-8 h-8 rounded-lg object-cover" />
+                  <h2 className="font-playfair text-xl font-bold">Resumé<span className="text-[#FF3B30]">Roast</span></h2>
+                </div>
+                <button onClick={() => setMobileMenuOpen(false)} className="text-white/40 hover:text-white text-2xl">✕</button>
+              </div>
+
+              {/* 2-Column Tool Grid */}
+              <div className="px-6 grid grid-cols-2 gap-4 mt-8 mb-8">
+                {NAV_TOOLS.map((tool) => (
+                  <motion.a
+                    key={tool.href}
+                    href={tool.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    whileTap={{ scale: 0.97 }}
+                    className="glass-card rounded-2xl p-5 flex flex-col gap-3"
+                  >
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                      style={{ backgroundColor: `${tool.color}20` }}>
+                      {tool.icon}
+                    </div>
+                    <div>
+                      <p className="font-playfair font-bold text-sm">{tool.label}</p>
+                      <p className="font-mono text-[10px] text-white/30 mt-0.5">{tool.desc}</p>
+                    </div>
+                  </motion.a>
+                ))}
+              </div>
+
+              {/* Bottom Action Row */}
+              <div className="px-6 pb-8 flex gap-4 flex-col">
+                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-3 text-center glass-card rounded-full font-mono text-sm hover:bg-white/10 transition-colors">
+                  💰 Pricing
+                </a>
+                {user ? (
+                  <a href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3 text-center bg-[#FF3B30] rounded-full font-mono text-sm text-white hover:bg-[#FF3B30]/90 transition-colors">
+                    📊 Dashboard
+                  </a>
+                ) : (
+                  <a href="/login" className="py-3 text-center bg-[#FF3B30] rounded-full font-mono text-sm text-white hover:bg-[#FF3B30]/90 transition-colors">
+                    Sign In
+                  </a>
                 )}
-                <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">How it works</a>
-                <a href="/match" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#34C759] font-bold">
-                  Job Match
-                  <span className="block font-mono text-[10px] font-normal text-white/30 mt-0.5">Match your resume to any job description</span>
-                </a>
-                <a href="/interview" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#007AFF] font-bold">
-                  Interview Prep
-                  <span className="block font-mono text-[10px] font-normal text-white/30 mt-0.5">AI questions from your actual resume</span>
-                </a>
-                <a href="/cover-letter" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#AF52DE] font-bold">
-                  Cover Letter
-                  <span className="block font-mono text-[10px] font-normal text-white/30 mt-0.5">One-click tailored cover letters</span>
-                </a>
-                <a href="/rewrite" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">
-                  Bullet Fixer
-                  <span className="block font-mono text-[10px] font-normal text-white/30 mt-0.5">Rewrite weak bullets into achievements</span>
-                </a>
-                <a href="/linkedin" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#0077B5] font-bold">
-                  LinkedIn
-                  <span className="block font-mono text-[10px] font-normal text-white/30 mt-0.5">Optimize your LinkedIn profile</span>
-                </a>
-                <a href="/compare" onClick={() => setMobileMenuOpen(false)} className="py-2 text-[#34C759] font-bold">
-                  Compare
-                  <span className="block font-mono text-[10px] font-normal text-white/30 mt-0.5">Compare two resume versions side-by-side</span>
-                </a>
-                <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="py-2 text-white/60 hover:text-[#FF3B30]">Pricing</a>
               </div>
             </motion.div>
           )}
